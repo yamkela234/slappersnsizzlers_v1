@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Order — Slappers n Sizzlers{% endblock %}
+
+{% block content %}
+<section class="cart-page">
+    <div class="container container-text">
+
+        <div class="section-header">
+            <h1 class="page-title">Your Order</h1>
+            <p class="section-subtitle">Check it over, then send it to the sizzle</p>
+        </div>
+
+        {% if rows %}
+
+        <div class="cart-card">
+            {% for row in rows %}
+            <div class="cart-line">
+                <img src="{{ row.item.image_url }}" alt="{{ row.item.name }}" class="cart-item-img">
+
+                <div class="cart-line-body">
+
+                    <a href="{{ row.item.get_absolute_url }}?{% for o in row.options %}opt={{ o.id }}&amp;{% endfor %}qty={{ row.quantity }}{% if row.note %}&amp;note={{ row.note|urlencode }}{% endif %}" class="cart-item-name">{{ row.item.name }}</a>
+
+                    {% if row.choices %}<span class="cart-item-option"><i class="ri-drop-line" aria-hidden="true"></i> {% for o in row.choices %}{{ o.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}
+                    {% if row.extras %}<span class="cart-item-option"><i class="ri-add-circle-line" aria-hidden="true"></i> {% for o in row.extras %}{{ o.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}
+                    {% if row.note %}<span class="cart-item-option cart-item-note"><i class="ri-sticky-note-line" aria-hidden="true"></i> {{ row.note }}</span>{% endif %}
+                    <span class="cart-item-price">R{{ row.unit_price|floatformat:2 }} each</span>
+                </div>
+
+                <form method="post" action="{% url 'cart.update' row.key %}" class="qty-stepper qty-stepper--tight" role="group" aria-label="Quantity of {{ row.item.name }}">
+                    {% csrf_token %}
+                    <button type="submit" name="qty" value="{{ row.quantity|add:'-1' }}" class="qty-btn" aria-label="Decrease quantity" {% if row.quantity <= 1 %}disabled{% endif %}><i class="ri-subtract-line" aria-hidden="true"></i></button>
+                    <span class="qty-readout qty-readout--tight">{{ row.quantity }}</span>
+                    <button type="submit" name="qty" value="{{ row.quantity|add:'1' }}" class="qty-btn" aria-label="Increase quantity" {% if row.quantity >= 10 %}disabled{% endif %}><i class="ri-add-line" aria-hidden="true"></i></button>
+                </form>
+
+                <span class="cart-line-total">R{{ row.line_total|floatformat:2 }}</span>
+
+                <form method="post" action="{% url 'cart.remove' row.key %}">
+                    {% csrf_token %}
+                    <button type="submit" class="icon-btn cart-remove-btn" aria-label="Remove {{ row.item.name }}"><i class="ri-delete-bin-line" aria-hidden="true"></i></button>
+                </form>
+            </div>
+            {% endfor %}
+
+            <div class="cart-total-row">
+                <span class="cart-total-label">Total</span>
+                <span class="cart-grand-total">R{{ grand_total|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        <div class="cart-actions">
+            <form method="post" action="{% url 'cart.clear' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary">Clear order</button>
+            </form>
+            {% if truck.is_trading %}
+            <a href="{% url 'orders.checkout' %}" class="btn-primary cart-checkout-btn">Proceed to checkout</a>
+            {% else %}
+
+            <span class="btn-off">Checkout opens at {{ truck.next_opening|time:"H:i" }}</span>
+            {% endif %}
+        </div>
+
+        {% with next=request.path %}{% include 'menu/_suggestions.html' %}{% endwith %}
+
+        {% else %}
+
+        <div class="cart-empty">
+            <i class="ri-shopping-cart-line cart-empty-icon" aria-hidden="true"></i>
+            <p class="cart-empty-text">Your order is empty — the grill is waiting.</p>
+            <a href="{% url 'home.index' %}#menu" class="btn-primary">Browse the menu</a>
+        </div>
+
+        {% endif %}
+    </div>
+</section>
+{% endblock content %}

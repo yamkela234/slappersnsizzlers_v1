@@ -1,0 +1,55 @@
+{% load staff_extras %}
+<div class="adm-backdrop" data-drawer-close></div>
+<aside class="adm-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+	<div class="adm-drawer-head">
+		<div class="adm-drawer-head-text">
+			<div class="adm-eyebrow adm-eyebrow--wide">Order</div>
+			<h2 id="drawer-title" class="adm-drawer-title">#{{ order.id }} · {{ order.customer_name }}</h2>
+		</div>
+		<button type="button" class="adm-icon-btn" aria-label="Close" data-drawer-close><i class="ri-close-line" aria-hidden="true"></i></button>
+	</div>
+
+	<div class="adm-drawer-body">
+		<div class="adm-code-panel">
+			<div class="adm-code-panel-label">Collection code</div>
+			<div class="adm-code-panel-code">{{ order.code }}</div>
+			<div class="adm-code-panel-slot">{{ order.window_label }}</div>
+		</div>
+
+		<div class="adm-facts">
+			<div><div class="adm-eyebrow">Customer</div><div class="adm-fact">{{ order.customer_name }}</div></div>
+			<div><div class="adm-eyebrow">Phone</div><div class="adm-fact">{{ order.phone }}</div></div>
+			<div><div class="adm-eyebrow">Placed</div><div class="adm-fact">{{ order.created_at|time:"H:i" }}</div></div>
+			<div><div class="adm-eyebrow">Status</div><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></div>
+		</div>
+
+		<div>
+			<h3 class="adm-h3">Lines</h3>
+			<div class="adm-lines">
+				{% for line in order.items.all %}
+				<div class="adm-line">{{ line }}{% if line.note %} — {{ line.note }}{% endif %}</div>
+				{% endfor %}
+				{% if order.tip %}<div class="adm-line">Tip — {{ order.tip|money }}</div>{% endif %}
+				<div class="adm-line-total">
+					<span>Total to pay at the stall</span>
+					<span class="adm-line-amount">{% if show_takings %}{{ order.total|money }}{% else %}—{% endif %}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="adm-drawer-foot">
+		<button type="button" class="adm-btn adm-btn--ghost adm-btn--lg" data-drawer-close>Cancel</button>
+		{% with label=next_labels|get_item:order.status %}
+		{% if label %}
+		<form method="post" action="{% url 'staff.advance' order.id %}" class="adm-grow" data-ajax>
+			{% csrf_token %}
+			<input type="hidden" name="next" value="{% url 'staff.orders' %}" />
+			<button type="submit" class="adm-btn adm-btn--wide adm-btn--lg{% if order.status == 'ready' %} adm-btn--dark{% endif %}">{{ label }}</button>
+		</form>
+		{% else %}
+		<span class="adm-grow adm-hint adm-center">{{ order.get_status_display }} — nothing more to do.</span>
+		{% endif %}
+		{% endwith %}
+	</div>
+</aside>

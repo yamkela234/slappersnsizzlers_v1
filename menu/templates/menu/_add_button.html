@@ -1,0 +1,11 @@
+{% if not truck.is_trading %}
+<button type="button" class="btn-add" disabled aria-disabled="true">Closed</button>
+{% elif item.requires_choice %}
+<button type="button" class="btn-add" data-modal="customise-{{ item.id }}" aria-haspopup="dialog">Add</button>
+{% else %}
+<form method="post" action="{% url 'cart.add' item.id %}" class="add-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn-add">Add</button>
+</form>
+{% endif %}

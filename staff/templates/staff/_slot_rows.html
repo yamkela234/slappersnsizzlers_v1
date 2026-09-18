@@ -1,0 +1,7 @@
+<div id="slots-list" class="adm-slot-list">
+	{% for slot in slots %}
+	{% include "staff/_slot_row.html" %}
+	{% empty %}
+	<div class="adm-table-empty">No windows left today — add one, or check the trading hours.</div>
+	{% endfor %}
+</div>

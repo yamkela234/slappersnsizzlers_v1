@@ -1,0 +1,38 @@
+{% extends "staff/base.html" %}
+
+{% block content %}
+<div class="adm-grid-2 adm-grid-2--300">
+	<section class="adm-card adm-card--flush">
+		<div class="adm-card-head"><h2 class="adm-h2">Who can open the queue</h2></div>
+		<div class="adm-table-wrap">
+			<table class="adm-table">
+				<thead>
+					<tr><th>Person</th><th>Role</th><th>Last seen</th><th></th></tr>
+				</thead>
+				{% include "staff/_person_rows.html" %}
+			</table>
+		</div>
+	</section>
+
+	<section class="adm-card adm-card--float adm-card--20">
+		<h2 class="adm-h2 adm-mb-4">Add someone</h2>
+		<p class="adm-hint adm-mb-16">Crew can move orders. Managers can change the menu and the hours.</p>
+		<form method="post" action="{% url 'staff.invite' %}" class="adm-stack adm-stack--12" data-ajax data-reset-on-success>
+			{% csrf_token %}
+			<label class="adm-field">Name
+				<input type="text" name="name" placeholder="Sipho Dlamini" maxlength="150" class="adm-input adm-input--strong" />
+			</label>
+			<label class="adm-field">Email
+				<input type="email" name="email" placeholder="sipho@slappers.co.za" class="adm-input adm-input--strong" />
+			</label>
+			<label class="adm-field">Role
+				<select name="role" class="adm-input adm-input--strong">
+					{% for value, label in form.fields.role.choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+				</select>
+			</label>
+			<button type="submit" class="adm-btn adm-btn--wide adm-btn--lg">Send invite</button>
+			<p class="adm-hint">No mail leaves the truck: the account is created without a password. Set their first one from Django admin.</p>
+		</form>
+	</section>
+</div>
+{% endblock content %}

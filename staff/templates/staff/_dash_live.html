@@ -1,0 +1,22 @@
+{% load staff_extras %}
+<div id="dash-live">
+	{% for order in live_orders %}
+	<div class="adm-live-row">
+		<div class="adm-live-text">
+			<div class="adm-live-head">
+				<span class="adm-order-id">#{{ order.id }}</span>
+				<span class="adm-code">{{ order.code }}</span>
+				<span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+			</div>
+			<div class="adm-live-sub">{{ order.customer_name }} · {% if order.slot %}{{ order.slot.label }}{% else %}ASAP · {{ order.created_at|time:"H:i" }}{% endif %}{% with first=order.items.all|first %}{% if first %} · {{ first }}{% endif %}{% endwith %}</div>
+		</div>
+		<form method="post" action="{% url 'staff.advance' order.id %}" data-ajax>
+			{% csrf_token %}
+			<input type="hidden" name="next" value="{% url 'staff.dashboard' %}" />
+			<button type="submit" class="adm-btn{% if order.status == 'ready' %} adm-btn--dark{% endif %}">{{ next_labels|get_item:order.status }}</button>
+		</form>
+	</div>
+	{% empty %}
+	<div class="adm-empty-dashed">Nothing live right now.</div>
+	{% endfor %}
+</div>

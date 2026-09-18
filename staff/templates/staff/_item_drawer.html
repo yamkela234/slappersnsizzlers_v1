@@ -1,0 +1,62 @@
+<div class="adm-backdrop" data-drawer-close></div>
+<aside class="adm-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+	<form method="post" action="{% url 'staff.item_edit' item.id %}" class="adm-drawer-form" data-ajax data-drawer-form>
+		{% csrf_token %}
+		<div class="adm-drawer-head">
+			<div class="adm-drawer-head-text">
+				<div class="adm-eyebrow adm-eyebrow--wide">Menu item</div>
+				<h2 id="drawer-title" class="adm-drawer-title">{{ item.name }}</h2>
+			</div>
+			<button type="button" class="adm-icon-btn" aria-label="Close" data-drawer-close><i class="ri-close-line" aria-hidden="true"></i></button>
+		</div>
+
+		<div class="adm-drawer-body">
+			<img src="{{ item.image_url }}" alt="" class="adm-drawer-photo" />
+
+			{% if form.non_field_errors %}<div class="adm-alert adm-alert--danger">{{ form.non_field_errors|first }}</div>{% endif %}
+
+			<label class="adm-field{% if form.name.errors %} has-error{% endif %}">Dish name
+				<input type="text" name="name" value="{{ form.name.value|default_if_none:'' }}" maxlength="80" required class="adm-input" />
+				{% if form.name.errors %}<span class="adm-field-error">{{ form.name.errors|first }}</span>{% endif %}
+			</label>
+			<label class="adm-field">Description
+				<textarea name="description" class="adm-input adm-textarea">{{ form.description.value|default_if_none:'' }}</textarea>
+			</label>
+			<div class="adm-field-grid adm-field-grid--130">
+				<label class="adm-field{% if form.price.errors %} has-error{% endif %}">Price (R)
+					<input type="number" name="price" step="0.01" min="0" value="{{ form.price.value|default_if_none:'' }}" required class="adm-input adm-input--strong" />
+					{% if form.price.errors %}<span class="adm-field-error">{{ form.price.errors|first }}</span>{% endif %}
+				</label>
+				<label class="adm-field{% if form.prep_minutes.errors %} has-error{% endif %}">Prep (min)
+					<input type="number" name="prep_minutes" step="1" min="1" value="{{ form.prep_minutes.value|default_if_none:'' }}" required class="adm-input adm-input--strong" />
+				</label>
+				<label class="adm-field">Category
+					<select name="category" class="adm-input">
+						{% for cat in categories %}<option value="{{ cat.id }}"{% if cat.id|stringformat:'s' == form.category.value|stringformat:'s' %} selected{% endif %}>{{ cat.name }}</option>{% endfor %}
+					</select>
+				</label>
+			</div>
+
+			<div class="adm-pill-toggles">
+				<label class="adm-pill-toggle adm-pill-toggle--spicy">
+					<input type="checkbox" name="is_spicy" value="on"{% if form.is_spicy.value %} checked{% endif %} />
+					<i class="ri-fire-fill" aria-hidden="true"></i><span data-on="Spicy" data-off="Not spicy">{% if form.is_spicy.value %}Spicy{% else %}Not spicy{% endif %}</span>
+				</label>
+				<label class="adm-pill-toggle adm-pill-toggle--avail">
+					<input type="checkbox" name="is_available" value="on"{% if form.is_available.value %} checked{% endif %} />
+					<i class="ri-restaurant-line" aria-hidden="true"></i><span data-on="On the menu" data-off="Sold out">{% if form.is_available.value %}On the menu{% else %}Sold out{% endif %}</span>
+				</label>
+			</div>
+
+			<div class="adm-info">
+				<i class="ri-information-line" aria-hidden="true"></i>
+				<span>Taking a dish off the menu never deletes it — past orders keep their lines and its reviews stay.</span>
+			</div>
+		</div>
+
+		<div class="adm-drawer-foot">
+			<button type="button" class="adm-btn adm-btn--ghost adm-btn--lg" data-drawer-close>Cancel</button>
+			<button type="submit" class="adm-btn adm-btn--wide adm-btn--lg adm-grow">Save changes</button>
+		</div>
+	</form>
+</aside>

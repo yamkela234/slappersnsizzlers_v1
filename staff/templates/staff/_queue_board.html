@@ -1,0 +1,48 @@
+{% load staff_extras %}
+<div id="queue-board" data-poll="{% url 'staff.queue_partial' %}">
+	<div class="adm-buckets">
+		{% for bucket in buckets %}
+		<section class="adm-bucket">
+			<div class="adm-bucket-head">
+				<span class="status-badge status-{{ bucket.key }}">{{ bucket.label }}</span>
+				<span class="adm-bucket-count">{{ bucket.orders|length }} live</span>
+			</div>
+			{% for order in bucket.orders %}
+
+			<article class="adm-order-card adm-order-card--{{ order.status }}">
+				<div class="adm-order-card-head">
+					<span class="adm-order-id">#{{ order.id }}</span>
+					<span class="adm-code">{{ order.code }}</span>
+					<span class="adm-order-total">{% if show_takings %}{{ order.total|money }}{% else %}—{% endif %}</span>
+				</div>
+				<div class="adm-order-card-sub">{{ order.customer_name }} · {% if order.slot %}{{ order.slot.label }}{% else %}ASAP · {{ order.created_at|time:"H:i" }}{% endif %}</div>
+				<div class="adm-order-lines">
+					{% for line in order.items.all %}
+					<div>{{ line.quantity }} × {{ line.name_snapshot }}{% if line.options_snapshot %} ({{ line.options_snapshot }}){% endif %}{% if line.note %} — {{ line.note }}{% endif %}</div>
+					{% endfor %}
+				</div>
+
+				<form method="post" action="{% url 'staff.advance' order.id %}" data-ajax>
+					{% csrf_token %}
+					<input type="hidden" name="next" value="{{ queue_url }}" />
+					<button type="submit" class="adm-btn adm-btn--wide{% if order.status == 'ready' %} adm-btn--dark{% endif %}">{{ bucket.next_label }}</button>
+				</form>
+			</article>
+			{% empty %}
+			<div class="adm-empty-dashed">Nothing here right now.</div>
+			{% endfor %}
+		</section>
+		{% endfor %}
+	</div>
+
+	<section class="adm-card">
+		<h2 class="adm-h2 adm-mb-10">Collected today</h2>
+		<div class="adm-chip-row">
+			{% for order in collected %}
+			<span class="adm-chip-dark"><i class="ri-check-line" aria-hidden="true"></i>#{{ order.id }} · {{ order.code }}</span>
+			{% empty %}
+			<span class="adm-hint">Nothing collected yet.</span>
+			{% endfor %}
+		</div>
+	</section>
+</div>

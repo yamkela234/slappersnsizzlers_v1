@@ -1,0 +1,36 @@
+{% load static %}
+<tr id="item-row-{{ item.id }}">
+	<td>
+		<div class="adm-dish">
+			<img src="{{ item.image_url }}" alt="" class="adm-thumb" />
+			<span class="adm-dish-text">
+				<span class="adm-dish-name">{{ item.name }}</span>
+				<span class="adm-td-meta">{% if item.is_spicy %}Hot · {% endif %}{{ sold }} sold today</span>
+			</span>
+		</div>
+	</td>
+	<td class="adm-td-soft">{{ item.category.name }}</td>
+	<td>
+		{% if show_takings %}
+
+		<form method="post" action="{% url 'staff.item_price' item.id %}" data-ajax data-autosave>
+			{% csrf_token %}
+			<label class="adm-money-shell"><span class="adm-money-prefix">R</span><input type="number" name="price" step="0.01" min="0" value="{{ item.price|stringformat:'.2f' }}" aria-label="Price for {{ item.name }}" class="adm-money-input" /></label>
+		</form>
+		{% else %}
+		<span class="adm-td-soft">—</span>
+		{% endif %}
+	</td>
+	<td class="adm-td-soft">{{ item.prep_minutes }} min</td>
+	<td>
+		<form method="post" action="{% url 'staff.item_toggle' item.id %}" data-ajax>
+			{% csrf_token %}
+
+			<button type="submit" role="switch" aria-checked="{{ item.is_available|yesno:'true,false' }}" class="adm-switch{% if item.is_available %} is-on{% endif %}" aria-label="{{ item.name }} on the menu"><span class="adm-switch-knob"></span></button>
+			<div class="adm-switch-label {% if item.is_available %}is-on{% else %}is-off{% endif %}">{% if item.is_available %}On{% else %}Sold out{% endif %}</div>
+		</form>
+	</td>
+	<td class="adm-right">
+		{% if show_takings %}<a href="{% url 'staff.item_edit' item.id %}" class="adm-btn adm-btn--ghost" data-drawer>Edit</a>{% endif %}
+	</td>
+</tr>

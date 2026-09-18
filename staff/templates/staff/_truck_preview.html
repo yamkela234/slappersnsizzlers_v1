@@ -1,0 +1,27 @@
+<div id="truck-preview">
+	{% if truck.is_trading %}
+	<div class="context-bar adm-preview-bar" role="status">
+		<div class="context-bar-inner adm-preview-bar-inner">
+			<span class="context-fact"><span class="live-dot" aria-hidden="true"></span><i class="ri-map-pin-2-fill" aria-hidden="true"></i> {{ truck.name }}{% if truck.zone %} · Zone {{ truck.zone }}{% endif %}</span>
+			<span class="context-fact"><i class="ri-time-line" aria-hidden="true"></i> Open until {{ truck.trading_until|time:"H:i" }}</span>
+			<span class="context-fact"><i class="ri-restaurant-line" aria-hidden="true"></i> Ready in ~{{ truck.ready_minutes }} min</span>
+		</div>
+	</div>
+	<div class="adm-info adm-mt-16">
+		<i class="ri-information-line" aria-hidden="true"></i>
+		<span>Checkout is open. The guard runs before the checkout page renders, so nobody walks three screens into a dead end.</span>
+	</div>
+	{% else %}
+	<div class="context-bar context-bar--closed adm-preview-bar" role="status">
+		<div class="context-bar-inner adm-preview-bar-inner">
+			<span class="context-fact"><i class="ri-moon-line" aria-hidden="true"></i> Not trading right now</span>
+			<span class="context-fact"><i class="ri-calendar-schedule-line" aria-hidden="true"></i> Back {{ truck.next_opening|date:"l" }}, {{ truck.next_opening|time:"H:i" }}</span>
+			<span class="context-fact"><i class="ri-information-line" aria-hidden="true"></i> Menu stays browsable — you just can't order yet.</span>
+		</div>
+	</div>
+	<div class="adm-info adm-mt-16">
+		<i class="ri-information-line" aria-hidden="true"></i>
+		<span>Checkout is replaced by the closed panel — the button is removed, not just disabled.</span>
+	</div>
+	{% endif %}
+</div>

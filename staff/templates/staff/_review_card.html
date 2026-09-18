@@ -1,0 +1,18 @@
+<article class="adm-card adm-review{% if review.is_hidden %} is-hidden{% endif %}" id="review-{{ review.id }}">
+	<div class="adm-review-head">
+		<span class="adm-review-dish">{{ review.menu_item.name }}</span>
+		<span class="adm-score{% if review.rating <= 2 %} adm-score--low{% endif %}">{{ review.rating }}/5</span>
+	</div>
+	<div class="adm-review-meta">{{ review.user.username }} · {{ review.created_at|date:"j M" }}{% if review.is_hidden %} · hidden{% endif %}</div>
+	<p class="adm-review-body">{{ review.comment }}</p>
+	<div class="adm-review-actions">
+		<form method="post" action="{% url 'staff.review_hide' review.id %}" data-ajax>
+			{% csrf_token %}
+			<button type="submit" class="adm-btn{% if not review.is_hidden %} adm-btn--ghost{% else %} adm-btn--dark{% endif %}">{% if review.is_hidden %}Show again{% else %}Hide{% endif %}</button>
+		</form>
+		<form method="post" action="{% url 'staff.review_delete' review.id %}" data-ajax data-confirm="Delete this review for good? Hiding it keeps a record.">
+			{% csrf_token %}
+			<button type="submit" class="adm-btn adm-btn--ghost adm-btn--muted adm-btn--danger-hover">Delete</button>
+		</form>
+	</div>
+</article>

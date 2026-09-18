@@ -1,0 +1,23 @@
+{% load static %}
+{% if suggestions %}
+<section class="suggestions" aria-labelledby="suggestions-title">
+    <h2 class="suggestions-title" id="suggestions-title">Goes well with this</h2>
+    <div class="suggestions-rail">
+        {% for item in suggestions %}
+        <article class="food-card suggestion-card">
+            <a href="{{ item.get_absolute_url }}">
+                <img class="food-card-image" src="{{ item.image_url }}" alt="{{ item.name }}">
+            </a>
+            <div class="food-card-body">
+                <h3 class="food-card-name"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></h3>
+                <div class="food-card-footer">
+                    <span class="food-price">R{{ item.price|floatformat:2 }}</span>
+                    {% include 'menu/_add_button.html' %}
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% with items=suggestions %}{% include 'menu/_customise_modal.html' %}{% endwith %}
+{% endif %}

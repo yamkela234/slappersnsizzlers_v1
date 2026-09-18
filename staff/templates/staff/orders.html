@@ -1,0 +1,36 @@
+{% extends "staff/base.html" %}
+
+{% block content %}
+<section class="adm-card adm-card--flush">
+
+	<form method="get" class="adm-toolbar" role="search">
+		<div class="adm-filter-row">
+			{% for key, label in filters %}
+			<a href="?status={{ key }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}" class="adm-filter{% if status == key %} is-active{% endif %}"{% if status == key %} aria-current="true"{% endif %}>{{ label }}</a>
+			{% endfor %}
+		</div>
+		<input type="hidden" name="status" value="{{ status }}" />
+		<label class="adm-search">
+			<i class="ri-search-line" aria-hidden="true"></i>
+			<input type="search" name="q" value="{{ q }}" placeholder="Name, phone or code" aria-label="Search orders" />
+		</label>
+	</form>
+	<div class="adm-table-wrap">
+		<table class="adm-table">
+			<thead>
+				<tr>
+					<th>Order</th><th>Code</th><th>Customer</th><th>Window</th><th>Status</th><th class="adm-right">Total</th><th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for order in orders %}
+				{% include "staff/_order_row.html" %}
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	{% if not orders %}
+	<div class="adm-table-empty">No orders match that filter.</div>
+	{% endif %}
+</section>
+{% endblock content %}

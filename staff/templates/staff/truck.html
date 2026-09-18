@@ -1,0 +1,48 @@
+{% extends "staff/base.html" %}
+
+{% block content %}
+<div class="adm-grid-2">
+
+	<section class="adm-card adm-card--float adm-card--20">
+		<h2 class="adm-h2 adm-mb-4">Where the truck is</h2>
+		<p class="adm-hint adm-mb-16">One row. It drives the context bar and the checkout guard, so they can never disagree.</p>
+
+		<form method="post" action="{% url 'staff.truck' %}">
+			{% csrf_token %}
+			<div class="adm-field-grid adm-field-grid--140">
+				<label class="adm-field{% if form.name.errors %} has-error{% endif %}">Location name
+					<input type="text" name="name" value="{{ form.name.value|default_if_none:'' }}" maxlength="80" required class="adm-input adm-input--strong" />
+					{% if form.name.errors %}<span class="adm-field-error">{{ form.name.errors|first }}</span>{% endif %}
+				</label>
+				<label class="adm-field">Zone
+					<input type="text" name="zone" value="{{ form.zone.value|default_if_none:'' }}" maxlength="20" class="adm-input adm-input--strong" />
+				</label>
+				<label class="adm-field{% if form.trading_from.errors %} has-error{% endif %}">Trading from
+					<input type="time" name="trading_from" value="{{ form.trading_from.value|time:'H:i'|default:form.trading_from.value }}" required class="adm-input adm-input--strong" />
+				</label>
+				<label class="adm-field{% if form.trading_until.errors %} has-error{% endif %}">Trading until
+					<input type="time" name="trading_until" value="{{ form.trading_until.value|time:'H:i'|default:form.trading_until.value }}" required class="adm-input adm-input--strong" />
+				</label>
+				<label class="adm-field{% if form.ready_minutes.errors %} has-error{% endif %}">Ready in (min)
+					<input type="number" name="ready_minutes" min="1" value="{{ form.ready_minutes.value|default_if_none:'' }}" required class="adm-input adm-input--strong" />
+				</label>
+				<label class="adm-field{% if form.slot_capacity.errors %} has-error{% endif %}">Slot capacity
+					<input type="number" name="slot_capacity" min="1" value="{{ form.slot_capacity.value|default_if_none:'' }}" required class="adm-input adm-input--strong" />
+					{% if form.slot_capacity.errors %}<span class="adm-field-error">{{ form.slot_capacity.errors|first }}</span>{% endif %}
+				</label>
+			</div>
+			<div class="adm-mt-16">
+				<button type="submit" class="adm-btn adm-btn--lg">Save truck</button>
+			</div>
+		</form>
+
+		{% include "staff/_truck_live.html" %}
+	</section>
+
+	<section class="adm-card adm-card--20">
+		<h2 class="adm-h2 adm-mb-4">What customers see</h2>
+		<p class="adm-hint adm-mb-16">The context bar under the storefront navbar, live.</p>
+		{% include "staff/_truck_preview.html" %}
+	</section>
+</div>
+{% endblock content %}

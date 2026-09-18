@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ item.name }} — Slappers n Sizzlers{% endblock %}
+
+{% block content %}
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <div class="container breadcrumb-inner">
+        <a href="{% url 'home.index' %}">Home</a>
+        <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+        <a href="{% url 'home.index' %}#menu">Menu</a>
+        <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+        <span aria-current="page">{{ item.name }}</span>
+    </div>
+</nav>
+
+<section class="item-detail">
+    <div class="container item-detail-grid">
+
+        <div class="item-detail-media">
+            <div class="item-detail-image">
+                <img src="{{ item.image_url }}" alt="{{ item.name }}">
+            </div>
+
+            <ul class="item-chips">
+                {% if item.is_spicy %}
+                <li class="item-chip item-chip--hot"><i class="ri-fire-fill" aria-hidden="true"></i> Hot</li>
+                {% endif %}
+                <li class="item-chip item-chip--time"><i class="ri-time-line" aria-hidden="true"></i> {{ item.prep_range }}</li>
+                <li class="item-chip item-chip--fresh"><i class="ri-restaurant-line" aria-hidden="true"></i> Made Fresh</li>
+            </ul>
+        </div>
+
+        <div class="item-detail-body">
+            <h1 class="item-name">{{ item.name }}</h1>
+
+            <div class="item-price-row">
+                <span class="item-price">R{{ item.price|floatformat:2 }}</span>
+                <span class="item-category-pill">{{ item.category }}</span>
+            </div>
+
+            <div class="rating-summary">
+
+                {% if average_rating %}
+                <span class="rating-badge"><i class="ri-star-fill" aria-hidden="true"></i> {{ average_rating|floatformat:1 }}</span>
+                <a href="#reviews" class="rating-count">{{ review_count }} review{{ review_count|pluralize }}</a>
+                {% else %}
+                <span class="rating-count">No ratings yet — be the first!</span>
+                {% endif %}
+            </div>
+
+            <p class="item-description">{{ item.description }}</p>
+
+            {% if item.is_available %}
+
+            <form method="post" action="{% url 'cart.add' item.id %}" class="order-form" id="order-form"
+                  data-unit-price="{{ item.price|stringformat:'.2f' }}" data-live-total>
+                {% csrf_token %}
+
+                <input type="hidden" name="next" value="{% url 'cart.index' %}">
+
+                {% include 'menu/_option_groups.html' %}
+
+                <div class="option-group">
+                    <label class="option-legend" for="item-note">Add a Note <span class="option-optional">Optional</span></label>
+                    <textarea id="item-note" name="note" class="form-input note-input" rows="2" maxlength="200"
+                              placeholder="e.g. no onions, extra crispy, sauce on the side">{{ initial_note }}</textarea>
+                </div>
+
+                <div class="option-group">
+                    <span class="option-legend" id="qty-label">Quantity</span>
+                    <div class="qty-stepper" role="group" aria-labelledby="qty-label">
+                        <button type="button" class="qty-btn" data-qty-step="-1" aria-label="Decrease quantity">
+                            <i class="ri-subtract-line" aria-hidden="true"></i>
+                        </button>
+                        <input type="number" name="quantity" id="qty-input" value="{{ initial_qty }}" min="1" max="10"
+                               class="qty-input" aria-label="Quantity" data-qty>
+                        <button type="button" class="qty-btn" data-qty-step="1" aria-label="Increase quantity">
+                            <i class="ri-add-line" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {% if truck.is_trading %}
+                <button type="submit" class="btn-primary add-to-cart-btn">
+                    <i class="ri-shopping-cart-line" aria-hidden="true"></i>
+                    Add to Cart · <span data-total>R{{ item.price|floatformat:2 }}</span>
+                </button>
+                {% else %}
+
+                <p class="sold-out-panel"><i class="ri-error-warning-line" aria-hidden="true"></i> Closed right now — back {{ truck.next_opening|date:"l" }} at {{ truck.next_opening|time:"H:i" }}.</p>
+                {% endif %}
+            </form>
+            {% else %}
+            <p class="sold-out-panel"><i class="ri-error-warning-line" aria-hidden="true"></i> Sold out — check back tomorrow.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+        {% with next=request.path %}{% include 'menu/_suggestions.html' %}{% endwith %}
+    </div>
+</section>
+
+<section class="reviews-section" id="reviews">
+    <div class="container reviews-container">
+
+        <h2 class="reviews-title">Reviews <span class="reviews-count">({{ review_count }})</span></h2>
+
+        {% if user.is_authenticated %}
+
+            {% if user_review %}
+            <div class="review-card review-card--mine">
+                <div class="review-card-head">
+                    <strong>Your review</strong>
+                    <span class="review-stars" aria-label="{{ user_review.rating }} out of 5">{{ user_review.rating }}/5</span>
+                </div>
+                <p class="review-body">{{ user_review.comment|linebreaksbr }}</p>
+                <p class="review-meta">
+                    {{ user_review.created_at|date:"j M Y" }}
+                    {% if user_review.updated_at|date:"U" != user_review.created_at|date:"U" %}<em>(edited)</em>{% endif %}
+                </p>
+                <div class="review-actions">
+                    <a href="{% url 'menu.review_edit' item.slug user_review.id %}" class="btn-secondary btn-small">Edit</a>
+                    <a href="{% url 'menu.review_delete' item.slug user_review.id %}" class="btn-secondary btn-small btn-danger">Delete</a>
+                </div>
+            </div>
+
+            {% elif form %}
+            <div class="review-card review-form-card">
+                <h3 class="review-form-title">Leave a review</h3>
+                <form method="post" action="{% url 'menu.review_create' item.slug %}" class="review-form" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <ul class="field-errors">
+                        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.rating.id_for_label }}">{{ form.rating.label }}</label>
+                        {{ form.rating }}
+                        {% if form.rating.errors %}
+                        <ul class="field-errors">{% for error in form.rating.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.comment.id_for_label }}">{{ form.comment.label }}</label>
+                        {{ form.comment }}
+                        {% if form.comment.errors %}
+                        <ul class="field-errors">{% for error in form.comment.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn-primary">Post review</button>
+                </form>
+            </div>
+            {% else %}
+            <p class="review-login-prompt">Reviews are for dishes you've tried — order it, collect it, then tell everyone.</p>
+            {% endif %}
+
+        {% else %}
+        <p class="review-login-prompt">
+            <a href="{% url 'accounts.login' %}?next={{ request.path }}">Sign in</a> to leave a review.
+        </p>
+        {% endif %}
+
+        {% for review in reviews %}
+        <article class="review-card">
+            <div class="review-card-head">
+                <strong class="review-author">{{ review.user.first_name|default:review.user.username }}</strong>
+                <span class="review-stars" aria-label="{{ review.rating }} out of 5">{{ review.rating }}/5</span>
+            </div>
+            <p class="review-body">{{ review.comment|linebreaksbr }}</p>
+            <p class="review-meta">
+                {{ review.created_at|date:"j M Y" }}
+                {% if review.updated_at|date:"U" != review.created_at|date:"U" %}<em>(edited)</em>{% endif %}
+            </p>
+        </article>
+        {% empty %}
+        <p class="reviews-empty">No reviews yet.</p>
+        {% endfor %}
+
+    </div>
+</section>
+{% endblock content %}

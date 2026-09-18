@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders — Slappers n Sizzlers{% endblock %}
+
+{% block content %}
+<section class="orders-page">
+    <div class="container container-text">
+
+        <div class="section-header">
+            <h1 class="page-title">My Orders</h1>
+            <p class="section-subtitle">{% if user.is_authenticated %}Every order, hot off the grill history{% else %}Orders from this device{% endif %}</p>
+        </div>
+
+        {% if not user.is_authenticated %}
+        <div class="guest-banner">
+            <i class="ri-device-line" aria-hidden="true"></i>
+            <span>These are the orders placed on this device. Sign in to keep them forever.</span>
+            <a href="{% url 'accounts.login' %}?next={{ request.path }}" class="btn-primary">Sign in</a>
+        </div>
+        {% endif %}
+
+        {% for order in orders %}
+        <article class="order-card">
+            <header class="order-card-header">
+                <span class="order-card-id">Order #{{ order.id }}</span>
+
+                <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+            </header>
+            <ul class="order-card-lines">
+
+                {% for line in order.items.all %}
+                <li>{{ line.quantity }} × {{ line.name_snapshot }}{% if line.options_snapshot %} <span class="order-line-sauce">({{ line.options_snapshot }})</span>{% endif %}</li>
+                {% endfor %}
+            </ul>
+            <footer class="order-card-footer">
+                <span class="order-card-date">{{ order.created_at|date:"j M Y, H:i" }}</span>
+                <span class="order-card-total">R{{ order.total|floatformat:2 }}</span>
+
+                {% if order.is_live %}
+                <a href="{% url 'orders.show' order.id %}" class="btn-primary btn-small">Track</a>
+                {% else %}
+                <a href="{% url 'orders.show' order.id %}" class="btn-primary btn-small">View</a>
+                {% endif %}
+            </footer>
+        </article>
+        {% empty %}
+        <div class="orders-empty">
+            <i class="ri-shopping-bag-line orders-empty-icon" aria-hidden="true"></i>
+            <p class="orders-empty-text">No orders yet — your first sizzle awaits.</p>
+            <a href="{% url 'home.index' %}#menu" class="btn-primary">Browse the menu</a>
+        </div>
+        {% endfor %}
+
+    </div>
+</section>
+{% endblock content %}

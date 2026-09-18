@@ -1,0 +1,24 @@
+<div class="adm-slot-row" id="slot-{{ slot.id }}">
+	<span class="adm-slot-label-wrap">
+		<span class="adm-slot-label">{{ slot.label }}</span>
+		<span class="adm-td-meta">{{ slot.relative_label }}</span>
+	</span>
+	<span class="adm-slot-track-wrap">
+		<span class="adm-track adm-track--8"><span class="adm-track-fill{% if slot.remaining == 0 %} is-full{% endif %}" style="width: {% widthratio slot.taken slot.capacity 100 %}%"></span></span>
+		<span class="adm-td-meta">{{ slot.taken }} of {{ slot.capacity }} taken</span>
+	</span>
+	<span class="adm-stepper-label">Capacity
+		<span class="adm-stepper">
+			<form method="post" action="{% url 'staff.slot_capacity' slot.id %}" data-ajax>{% csrf_token %}<input type="hidden" name="delta" value="-1" /><button type="submit" class="adm-stepper-btn adm-stepper-btn--lg" aria-label="Lower capacity"{% if slot.capacity <= slot.taken or slot.capacity <= 1 %} disabled{% endif %}><i class="ri-subtract-line" aria-hidden="true"></i></button></form>
+			<span class="adm-stepper-value adm-stepper-value--lg">{{ slot.capacity }}</span>
+			<form method="post" action="{% url 'staff.slot_capacity' slot.id %}" data-ajax>{% csrf_token %}<input type="hidden" name="delta" value="1" /><button type="submit" class="adm-stepper-btn adm-stepper-btn--lg" aria-label="Raise capacity"><i class="ri-add-line" aria-hidden="true"></i></button></form>
+		</span>
+	</span>
+	<span class="adm-slot-state">
+		{% if slot.remaining == 0 %}<span class="status-badge status-cancelled">Full — off checkout</span>{% else %}<span class="status-badge status-ready">{{ slot.remaining }} left</span>{% endif %}
+	</span>
+	<form method="post" action="{% url 'staff.slot_close' slot.id %}" data-ajax data-confirm="Close {{ slot.label }}?{% if slot.taken %} {{ slot.taken }} order{{ slot.taken|pluralize }} already booked will keep it — it just stops taking new ones.{% endif %}">
+		{% csrf_token %}
+		<button type="submit" class="adm-icon-btn" aria-label="Close {{ slot.label }}"><i class="ri-close-line" aria-hidden="true"></i></button>
+	</form>
+</div>

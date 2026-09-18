@@ -1,0 +1,17 @@
+{% extends "staff/base.html" %}
+
+{% block content %}
+<div class="adm-filter-row">
+	{% for key, label in filters %}
+	<a href="?rating={{ key }}" class="adm-filter{% if pick == key %} is-active{% endif %}"{% if pick == key %} aria-current="true"{% endif %}>{{ label }}</a>
+	{% endfor %}
+</div>
+
+<div class="adm-review-cards">
+	{% for review in reviews %}
+	{% include "staff/_review_card.html" %}
+	{% empty %}
+	<p class="adm-hint">No reviews match that filter.</p>
+	{% endfor %}
+</div>
+{% endblock content %}

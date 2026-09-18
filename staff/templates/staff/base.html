@@ -1,0 +1,86 @@
+{% load static %}
+{% load staff_extras %}
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{% block title %}{{ page_title }} — Back office{% endblock %}</title>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+		<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+		<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+	</head>
+
+	<body class="adm-body">
+		<div class="adm-app">
+
+			<aside class="adm-sidebar">
+				<div class="adm-brand">
+					<a href="{% url 'home.index' %}" title="Storefront"><img src="{% static 'img/logo.png' %}" alt="Slappers n Sizzlers" class="adm-brand-logo" /></a>
+					<span class="adm-brand-chip">Admin</span>
+				</div>
+
+				<nav class="adm-nav" aria-label="Back office">
+					{% for group in nav %}
+					<div class="adm-nav-section">{{ group.label }}</div>
+					{% for item in group.items %}
+
+					<a href="{{ item.url }}" class="adm-nav-item{% if item.active %} is-active{% endif %}"{% if item.active %} aria-current="page"{% endif %}>
+						<i class="{{ item.icon }}" aria-hidden="true"></i>
+						<span class="adm-nav-label">{{ item.label }}</span>
+						{% if item.badge_key %}{% include "staff/_nav_badge.html" with key=item.badge_key count=item.badge %}{% endif %}
+					</a>
+					{% endfor %}
+					{% endfor %}
+				</nav>
+
+				<div class="adm-me">
+					<span class="adm-avatar" aria-hidden="true">{{ user|initials }}</span>
+					<span class="adm-me-text">
+						<span class="adm-me-name">{{ user.get_full_name|default:user.username }}</span>
+						<span class="adm-me-role">{{ role }}</span>
+					</span>
+
+					<form method="post" action="{% url 'accounts.logout' %}" class="adm-signout">
+						{% csrf_token %}
+						<button type="submit" class="adm-icon-btn" aria-label="Sign out" title="Sign out"><i class="ri-logout-box-r-line" aria-hidden="true"></i></button>
+					</form>
+				</div>
+			</aside>
+
+			<main class="adm-main">
+
+				<header class="adm-header">
+					<div class="adm-header-text">
+						<h1 class="adm-title">{{ page_title }}</h1>
+						<p class="adm-sub">{{ page_sub }}</p>
+					</div>
+					<div class="adm-header-pills">
+						{% include "staff/_trading_pill.html" %}
+						{% if next_slot %}
+						<span class="adm-pill"><i class="ri-timer-line" aria-hidden="true"></i> {{ next_slot.start|time:"H:i" }} slot · {{ next_slot.taken }} of {{ next_slot.capacity }} taken</span>
+						{% endif %}
+					</div>
+				</header>
+
+				<div class="adm-content">
+					{% block content %}{% endblock content %}
+				</div>
+			</main>
+
+			<div id="drawer-root">{% if drawer_html %}{{ drawer_html|safe }}{% endif %}</div>
+
+			<div id="toast-root" class="adm-toast-root" aria-live="polite">
+				{% for message in messages %}
+				<div class="adm-toast{% if message.tags == 'error' %} adm-toast--error{% endif %}" role="status"><i class="{% if message.tags == 'error' %}ri-error-warning-line{% else %}ri-check-line{% endif %}" aria-hidden="true"></i>{{ message }}</div>
+				{% endfor %}
+			</div>
+		</div>
+
+		<script src="{% static 'js/staff.js' %}"></script>
+	</body>
+</html>

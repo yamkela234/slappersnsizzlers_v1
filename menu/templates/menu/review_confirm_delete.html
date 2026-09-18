@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete your review — Slappers n Sizzlers{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-card review-edit-card">
+        <h1 class="auth-title">Delete this review?</h1>
+        <p class="auth-subtitle">This can't be undone.</p>
+
+        <div class="review-card review-card--mine">
+            <div class="review-card-head">
+                <strong>{{ item.name }}</strong>
+                <span class="review-stars">{{ review.rating }}/5</span>
+            </div>
+
+            <p class="review-body">{{ review.comment|linebreaksbr }}</p>
+        </div>
+
+        <form method="post" class="form-actions">
+
+            {% csrf_token %}
+            <button type="submit" class="btn-primary btn-danger-solid">Yes, delete it</button>
+            <a href="{{ item.get_absolute_url }}" class="btn-secondary">Keep it</a>
+        </form>
+    </div>
+</section>
+{% endblock content %}

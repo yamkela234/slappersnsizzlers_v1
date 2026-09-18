@@ -1,0 +1,10 @@
+<div id="truck-live" class="adm-live-switch">
+	<form method="post" action="{% url 'staff.truck_live' %}" data-ajax>
+		{% csrf_token %}
+		<button type="submit" role="switch" aria-checked="{{ truck.is_live|yesno:'true,false' }}" class="adm-switch{% if truck.is_live %} is-on{% endif %}" aria-label="Trading"><span class="adm-switch-knob"></span></button>
+	</form>
+	<span class="adm-live-switch-text">
+		<span class="adm-live-switch-title">{% if truck.is_live %}We're set up and cooking{% else %}Closed — orders blocked{% endif %}</span>
+		<span class="adm-hint">{% if truck.is_live %}Untick to flip the whole site to its closed state, whatever the clock says.{% else %}The menu stays browsable; only the commit buttons change.{% endif %}</span>
+	</span>
+</div>

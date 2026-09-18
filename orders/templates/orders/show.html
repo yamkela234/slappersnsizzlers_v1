@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.id }} — Slappers n Sizzlers{% endblock %}
+
+{% block content %}
+<section class="orders-page" data-status-page data-status-url="{% url 'orders.status_json' order.id %}" data-status="{{ order.status }}">
+    <div class="container container-text">
+
+        <div class="section-header">
+            <h1 class="page-title">Order #{{ order.id }}</h1>
+
+            <p class="section-subtitle">
+                {% if order.status == "pending" %}We've got it — the grill picks it up next.
+                {% elif order.status == "preparing" %}On the grill now. We'll shout {{ order.code }} at the hatch.
+                {% elif order.status == "ready" %}Ready for collection{% if truck.zone %} — come to Zone {{ truck.zone }}{% endif %}.
+                {% elif order.status == "collected" %}Collected. Hope it slapped.
+                {% else %}This order was cancelled. Nothing to pay.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="order-detail-card">
+
+            <ol class="status-rail" aria-label="Order progress">
+                {% for step in steps %}
+                <li class="status-step status-step--{{ step.state }}" {% if step.state == "now" %}aria-current="step"{% endif %}>
+                    <span class="status-bar" aria-hidden="true"></span>
+                    <span class="status-mark-row">
+                        <span class="status-mark" aria-hidden="true">
+                            {% if step.state == "past" %}<i class="ri-check-line"></i>{% elif step.state == "now" %}<i class="ri-loader-4-line"></i>{% else %}<i class="ri-circle-line"></i>{% endif %}
+                        </span>
+                        <span class="status-label">{{ step.label }}</span>
+                    </span>
+                </li>
+                {% endfor %}
+            </ol>
+
+            <div class="fact-strip">
+                <div>
+                    <div class="fact-label">Collection code</div>
+                    <div class="fact-code">{{ order.code }}</div>
+                </div>
+                <div>
+                    <div class="fact-label">Window</div>
+                    <div class="fact-value">{{ order.window_label }}</div>
+                </div>
+                <div>
+                    <div class="fact-label">Status</div>
+                    <div><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></div>
+                </div>
+                <div>
+                    <div class="fact-label">Total</div>
+                    <div class="fact-total">R{{ order.total|floatformat:2 }}</div>
+                </div>
+                <div>
+                    <div class="fact-label">Collecting</div>
+                    <div class="fact-value">{{ order.customer_name }}</div>
+                </div>
+            </div>
+
+            {% include 'orders/_order_lines.html' %}
+
+            {% if order.is_live %}
+            <p class="status-note"><i class="ri-information-line" aria-hidden="true"></i> This screen updates itself — the staff queue moves the chip, you don't refresh.</p>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+            <div class="confirmation-actions">
+                <a href="{% url 'orders.index' %}" class="btn-primary">← All my orders</a>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+{% endblock content %}

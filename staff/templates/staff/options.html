@@ -1,0 +1,16 @@
+{% extends "staff/base.html" %}
+
+{% block content %}
+
+<div class="adm-filter-row">
+	{% for dish in dishes %}
+	<a href="?food={{ dish.slug }}" class="adm-filter{% if dish == food %} is-active{% endif %}"{% if dish == food %} aria-current="true"{% endif %}>{{ dish.name }}</a>
+	{% endfor %}
+</div>
+
+{% if food %}
+{% include "staff/_option_groups.html" %}
+{% else %}
+<p class="adm-hint">No dishes on the menu yet — run <code>python manage.py seed_menu</code>.</p>
+{% endif %}
+{% endblock content %}

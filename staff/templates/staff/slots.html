@@ -1,0 +1,14 @@
+{% extends "staff/base.html" %}
+
+{% block content %}
+<section class="adm-card adm-card--flush">
+	<div class="adm-card-head">
+		<h2 class="adm-h2">Collection windows</h2>
+		<form method="post" action="{% url 'staff.slot_add' %}" data-ajax>
+			{% csrf_token %}
+			<button type="submit" class="adm-btn">+ Add 15-min window</button>
+		</form>
+	</div>
+	{% include "staff/_slot_rows.html" %}
+</section>
+{% endblock content %}

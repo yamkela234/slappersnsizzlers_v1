@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Slappers n Sizzlers — Order & Skip the Line{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="hero-container">
+
+        <div class="hero-text">
+            <h1 class="hero-title">Order &amp; Skip<br>the Line</h1>
+
+            <p class="hero-description">
+                Pre-order your favorite food from Slappers n Sizzlers and pick it up
+                when it's ready. No waiting, no queues — just delicious food!
+            </p>
+
+            <div class="hero-cta-group">
+                <a href="#menu" class="hero-button">
+                    <i class="ri-restaurant-line" aria-hidden="true"></i>
+                    Start Order
+                </a>
+                <div class="hero-social-proof">
+                    <span class="hero-stars" aria-hidden="true">★★★★★</span>
+                    <strong>4.8</strong>
+                    <span class="proof-dot" aria-hidden="true"></span>
+                    <span>200+ orders today</span>
+                    <span class="proof-dot" aria-hidden="true"></span>
+                    <span>Cape Town</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <div class="hero-image-wrapper">
+                <div class="hero-chip chip-orders">
+                    <i class="ri-fire-line" aria-hidden="true"></i>
+                    <span>200+ orders today</span>
+                </div>
+                <div class="hero-chip chip-time">
+                    <i class="ri-time-line" aria-hidden="true"></i>
+                    <span>Ready in 12 min</span>
+                </div>
+                <div class="hero-chip chip-rating">
+                    <i class="ri-star-fill chip-star" aria-hidden="true"></i>
+                    <span>4.8 rating</span>
+                </div>
+
+                <div class="hero-image-circle">
+                    <img src="{% static 'img/hero-food.png' %}" alt="Slappers n Sizzlers food">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="popular-section" id="menu" aria-labelledby="menu-title">
+
+    <div class="section-header">
+        <h2 class="section-title" id="menu-title">Browse The Menu</h2>
+        <p class="section-subtitle">Five things, all of them good. Order in seconds, pick up when ready.</p>
+    </div>
+
+    <div class="food-grid">
+        {% for item in items %}
+        <article class="food-card">
+            <a href="{{ item.get_absolute_url }}">
+                <img class="food-card-image" src="{{ item.image_url }}" alt="{{ item.name }}">
+            </a>
+            <div class="food-card-body">
+                <h3 class="food-card-name"><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></h3>
+                <p class="food-card-desc">{{ item.description }}</p>
+                <div class="food-card-footer">
+                    <span class="food-price">R{{ item.price|floatformat:2 }}</span>
+                    {% with next="/#menu" %}{% include 'menu/_add_button.html' %}{% endwith %}
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <p class="menu-empty">The menu is being prepared — check back soon.</p>
+        {% endfor %}
+    </div>
+
+</section>
+
+{% with next="/#menu" %}{% include 'menu/_customise_modal.html' %}{% endwith %}
+
+{% endblock content %}

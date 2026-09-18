@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Order placed! — Slappers n Sizzlers{% endblock %}
+
+{% block content %}
+<section class="orders-page confirmation-page">
+    <div class="container container-text">
+
+        <div class="confirmation-hero">
+            <i class="ri-checkbox-circle-fill confirmation-icon" aria-hidden="true"></i>
+            <h1 class="page-title">Got it, {{ order.customer_name }}!</h1>
+            <p class="section-subtitle">Order <strong>#{{ order.id }}</strong> is in. We'll shout this number at the hatch.</p>
+        </div>
+
+        <div class="code-panel">
+            <div class="code-eyebrow">Collection code</div>
+            <div class="code-digits" aria-label="Collection code {{ order.code }}">{{ order.code }}</div>
+            <div class="code-window">{{ order.window_label }}{% if truck.zone %} · Zone {{ truck.zone }}{% endif %}</div>
+        </div>
+
+        <div class="order-detail-card">
+            {% with total_label="Total to pay at the stall" %}{% include 'orders/_order_lines.html' %}{% endwith %}
+
+            <div class="confirmation-actions">
+                <a href="{% url 'orders.show' order.id %}" class="btn-primary">Track this order</a>
+                <a href="{% url 'home.index' %}#menu" class="btn-primary">Order more</a>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock content %}

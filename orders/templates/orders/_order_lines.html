@@ -1,0 +1,24 @@
+<ul class="order-lines">
+    {% for line in items %}
+    <li class="order-line">
+        <span class="order-line-body">
+
+            <span class="order-line-name"><a href="{% url 'menu.show' line.menu_item.slug %}">{{ line.quantity }} × {{ line.name_snapshot }}</a></span>
+            {% if line.options_snapshot or line.note %}
+            <span class="order-line-choices">{{ line.options_snapshot }}{% if line.options_snapshot and line.note %} · {% endif %}{{ line.note }}</span>
+            {% endif %}
+        </span>
+        <span class="order-line-amount">R{{ line.line_total|floatformat:2 }}</span>
+    </li>
+    {% endfor %}
+    {% if order.tip %}
+    <li class="order-line">
+        <span class="order-line-body"><span class="order-line-name">Tip for the crew</span></span>
+        <span class="order-line-amount">R{{ order.tip|floatformat:2 }}</span>
+    </li>
+    {% endif %}
+</ul>
+<div class="order-total">
+    <span class="order-total-label">{{ total_label|default:"Total" }}</span>
+    <span class="order-total-amount">R{{ order.total|floatformat:2 }}</span>
+</div>

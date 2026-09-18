@@ -1,0 +1,6 @@
+db.sqlite3
+media/
+staticfiles/
+.idea/
+.env
+__pycache__/

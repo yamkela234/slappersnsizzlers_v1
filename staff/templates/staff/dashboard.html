@@ -1,0 +1,92 @@
+{% extends "staff/base.html" %}
+{% load staff_extras %}
+
+{% block content %}
+
+<div class="adm-tiles">
+	<div class="adm-card adm-tile">
+		<div class="adm-eyebrow"><i class="ri-receipt-line" aria-hidden="true"></i>Orders today</div>
+		<div class="adm-tile-value">{{ tiles.orders }}</div>
+		<div class="adm-tile-sub">{{ tiles.live }} still live</div>
+	</div>
+	<div class="adm-card adm-tile">
+		<div class="adm-eyebrow"><i class="ri-money-rand-circle-line" aria-hidden="true"></i>Takings</div>
+
+		<div class="adm-tile-value">{% if show_takings %}{{ tiles.takings|money }}{% else %}Hidden{% endif %}</div>
+		<div class="adm-tile-sub">{% if show_takings %}Pay at the stall{% else %}Manager access only{% endif %}</div>
+	</div>
+	<div class="adm-card adm-tile">
+		<div class="adm-eyebrow"><i class="ri-fire-line" aria-hidden="true"></i>In the grill</div>
+		<div class="adm-tile-value">{{ tiles.preparing }}</div>
+		<div class="adm-tile-sub">{{ tiles.ready }} waiting at the hatch</div>
+	</div>
+	<div class="adm-card adm-tile">
+		<div class="adm-eyebrow"><i class="ri-timer-line" aria-hidden="true"></i>Avg prep</div>
+
+		<div class="adm-tile-value">{% if tiles.avg_prep is not None %}{{ tiles.avg_prep }} min{% else %}—{% endif %}</div>
+		<div class="adm-tile-sub">Promise is ~{{ truck.ready_minutes }} min</div>
+	</div>
+</div>
+
+<div class="adm-grid-2">
+	<section class="adm-card adm-card--flush">
+		<div class="adm-card-head">
+			<h2 class="adm-h2">Live queue</h2>
+			<a href="{% url 'staff.queue' %}" class="adm-btn adm-btn--ghost">Open queue</a>
+		</div>
+		{% include "staff/_dash_live.html" %}
+	</section>
+
+	<div class="adm-stack">
+		<section class="adm-card">
+			<h2 class="adm-h2 adm-mb-10">Needs attention</h2>
+			<div class="adm-stack adm-stack--8">
+				{% for note in attention %}
+				<div class="adm-alert adm-alert--{{ note.kind }}">
+					<i class="{{ note.icon }}" aria-hidden="true"></i>
+					<span class="adm-alert-text">{{ note.text }}</span>
+					{% if note.action %}<a href="{{ note.url }}" class="adm-alert-link">{{ note.action }}</a>{% endif %}
+				</div>
+				{% endfor %}
+			</div>
+		</section>
+
+		<section class="adm-card">
+			<h2 class="adm-h2 adm-mb-4">Next collection windows</h2>
+			<p class="adm-hint adm-mb-12">Full windows drop off the checkout list.</p>
+			<div class="adm-stack adm-stack--12">
+				{% for slot in windows %}
+				<div>
+					<div class="adm-window-head">
+						<span class="adm-window-label">{{ slot.label }}</span>
+						<span class="adm-window-count">{{ slot.taken }} of {{ slot.capacity }}</span>
+					</div>
+
+					<div class="adm-track adm-track--6"><span class="adm-track-fill{% if slot.remaining == 0 %} is-full{% endif %}" style="width: {% widthratio slot.taken slot.capacity 100 %}%"></span></div>
+				</div>
+				{% empty %}
+				<p class="adm-hint">No windows left today.</p>
+				{% endfor %}
+			</div>
+		</section>
+	</div>
+</div>
+
+<section class="adm-card">
+	<h2 class="adm-h2 adm-mb-12">Latest reviews</h2>
+	<div class="adm-review-grid">
+		{% for review in latest_reviews %}
+		<div class="adm-panel">
+			<div class="adm-panel-head">
+				<span class="adm-panel-title">{{ review.menu_item.name }}</span>
+				<span class="adm-score">{{ review.rating }}/5</span>
+			</div>
+			<div class="adm-panel-body">{{ review.comment }}</div>
+			<div class="adm-panel-meta">{{ review.user.username }} · {{ review.created_at|date:"j M" }}</div>
+		</div>
+		{% empty %}
+		<p class="adm-hint">No reviews yet.</p>
+		{% endfor %}
+	</div>
+</section>
+{% endblock content %}

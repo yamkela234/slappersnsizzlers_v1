@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout — Slappers n Sizzlers{% endblock %}
+
+{% block content %}
+<section class="checkout-page">
+    <div class="container checkout-container">
+
+        <div class="section-header">
+            <h1 class="page-title">Checkout</h1>
+            <p class="section-subtitle">Almost there — when are you collecting?</p>
+        </div>
+
+        {% if closed %}
+
+        <div class="closed-panel">
+            <i class="ri-moon-line" aria-hidden="true"></i>
+            <h2>The grill is off</h2>
+            <p>We're back {{ truck.next_opening|date:"l" }} at {{ truck.next_opening|time:"H:i" }}. Your order is saved — check out then.</p>
+            <a href="{% url 'home.index' %}#menu" class="btn-primary">Keep browsing</a>
+        </div>
+        {% else %}
+
+        <form method="post" action="{% url 'orders.checkout' %}" novalidate>
+            {% csrf_token %}
+            <div class="checkout-grid">
+
+                <div class="checkout-stack">
+
+                    <div class="checkout-panel">
+                        <h2 class="checkout-heading">Collection window</h2>
+                        <p class="checkout-hint">Each slot is capped by what the grill can turn out. Full slots aren't listed.</p>
+                        <fieldset class="option-group">
+                            <legend class="visually-hidden">Collection window</legend>
+                            <div class="option-list">
+                                <label class="option-row">
+                                    <input type="radio" name="slot" value="asap" {% if selected_slot == "asap" %}checked{% endif %}>
+                                    <span class="option-control" aria-hidden="true"></span>
+                                    <span class="option-name">ASAP<span class="option-sub">Ready in about {{ truck.ready_minutes }} min</span></span>
+                                    <span class="option-cap option-cap--fastest">Fastest</span>
+                                </label>
+                                {% for slot in slots %}
+                                <label class="option-row">
+                                    <input type="radio" name="slot" value="{{ slot.pk }}" {% if selected_slot == slot.pk|stringformat:"s" %}checked{% endif %}>
+                                    <span class="option-control" aria-hidden="true"></span>
+                                    <span class="option-name">{{ slot.label }}<span class="option-sub">{{ slot.relative_label }}</span></span>
+                                    <span class="option-cap">{{ slot.remaining }} left</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="checkout-panel">
+                        <h2 class="checkout-heading">Your order</h2>
+                        <ul class="order-lines">
+                            {% for row in rows %}
+                            <li class="order-line">
+                                <span class="order-line-body">
+                                    <span class="order-line-name">{{ row.quantity }} × {{ row.item.name }}</span>
+                                    {% if row.options or row.note %}
+                                    <span class="order-line-choices">{% for o in row.options %}{{ o.name }}{% if not forloop.last %} · {% endif %}{% endfor %}{% if row.options and row.note %} · {% endif %}{{ row.note }}</span>
+                                    {% endif %}
+                                </span>
+                                <span class="order-line-amount">R{{ row.line_total|floatformat:2 }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="order-total">
+                            <span class="order-total-label">Total</span>
+                            <span class="order-total-amount">R{{ goods_total|floatformat:2 }}</span>
+                        </div>
+                        <a href="{% url 'cart.index' %}" class="checkout-edit-link">← Edit order</a>
+                    </div>
+                </div>
+
+                <div class="checkout-card">
+                    <h2 class="checkout-heading">Who's collecting?</h2>
+                    <p class="checkout-hint">No account needed. Pay at the stall.</p>
+
+                    {% if form.non_field_errors %}
+                    <ul class="field-errors">
+                        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.customer_name.id_for_label }}">Name</label>
+                        {{ form.customer_name }}
+                        {% if form.customer_name.errors %}
+                        <ul class="field-errors">{% for error in form.customer_name.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.phone.id_for_label }}">Phone</label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                        <ul class="field-errors">{% for error in form.phone.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                        {% endif %}
+                    </div>
+
+                    <label class="option-row">
+                        <input type="checkbox" name="tip" value="on" data-tip="10.00" {% if form.tip.value %}checked{% endif %}>
+                        <span class="option-control option-control--box" aria-hidden="true"></span>
+                        <span class="option-name">Tip the crew<span class="option-sub">R10 · opt-in, never pre-ticked</span></span>
+                    </label>
+
+                    <button type="submit" class="btn-primary checkout-submit" data-goods-total="{{ goods_total|stringformat:'.2f' }}">Place order — <span data-pay-total>R{{ goods_total|floatformat:2 }}</span></button>
+                    <p class="checkout-note">Pay at the stall when you collect. No card needed yet.</p>
+                </div>
+
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</section>
+{% endblock content %}

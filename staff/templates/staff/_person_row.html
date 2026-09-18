@@ -1,0 +1,24 @@
+{% load staff_extras %}
+<tr id="person-{{ person.id }}">
+	<td>
+		<div class="adm-person">
+			<span class="adm-avatar{% if not person.is_active %} is-off{% endif %}" aria-hidden="true">{{ person|initials }}</span>
+			<span class="adm-dish-text">
+				<span class="adm-dish-name">{{ person.get_full_name|default:person.username }}</span>
+				<span class="adm-td-meta">{{ person.email|default:"—" }}</span>
+			</span>
+		</div>
+	</td>
+	<td><span class="status-badge{% if person_role == 'Crew' %} status-pending{% else %} status-paid{% endif %}">{{ person_role }}</span></td>
+	<td class="adm-td-soft">{% if person == me %}Now · here{% elif person.last_login %}{{ person.last_login|date:"j M, H:i" }}{% else %}Never{% endif %}</td>
+	<td class="adm-right">
+		{% if person != me %}
+		<form method="post" action="{% url 'staff.person_toggle' person.id %}" data-ajax>
+			{% csrf_token %}
+			<button type="submit" class="adm-btn{% if person.is_active %} adm-btn--ghost{% else %} adm-btn--dark{% endif %}">{% if person.is_active %}Suspend{% else %}Restore{% endif %}</button>
+		</form>
+		{% else %}
+		<span class="adm-td-meta">You</span>
+		{% endif %}
+	</td>
+</tr>

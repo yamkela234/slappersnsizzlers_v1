@@ -1,0 +1,55 @@
+<section class="adm-card" id="group-{{ group.id }}">
+	<div class="adm-group-head">
+		<form method="post" action="{% url 'staff.group_update' group.id %}" data-ajax data-autosave>
+			{% csrf_token %}
+			<input type="text" name="name" value="{{ group.name }}" maxlength="60" aria-label="Group name" class="adm-input adm-group-name" />
+		</form>
+
+		<form method="post" action="{% url 'staff.group_update' group.id %}" data-ajax>
+			{% csrf_token %}
+			<input type="hidden" name="required" value="{% if group.required %}0{% else %}1{% endif %}" />
+			<button type="submit" class="adm-req{% if group.required %} is-required{% endif %}" aria-pressed="{{ group.required|yesno:'true,false' }}">{% if group.required %}Required{% else %}Optional{% endif %}</button>
+		</form>
+		<span class="adm-stepper-label">Pick up to
+			<span class="adm-stepper adm-stepper--sm">
+				<form method="post" action="{% url 'staff.group_update' group.id %}" data-ajax>{% csrf_token %}<input type="hidden" name="max_choices" value="{{ group.max_choices|add:'-1' }}" /><button type="submit" class="adm-stepper-btn" aria-label="Fewer choices"{% if group.max_choices <= 1 %} disabled{% endif %}><i class="ri-subtract-line" aria-hidden="true"></i></button></form>
+				<span class="adm-stepper-value">{{ group.max_choices }}</span>
+				<form method="post" action="{% url 'staff.group_update' group.id %}" data-ajax>{% csrf_token %}<input type="hidden" name="max_choices" value="{{ group.max_choices|add:'1' }}" /><button type="submit" class="adm-stepper-btn" aria-label="More choices"{% if group.max_choices >= 6 %} disabled{% endif %}><i class="ri-add-line" aria-hidden="true"></i></button></form>
+			</span>
+		</span>
+		<form method="post" action="{% url 'staff.group_delete' group.id %}" class="adm-push" data-ajax data-confirm="Delete “{{ group.name }}” and its options? Past orders keep what they chose.">
+			{% csrf_token %}
+			<button type="submit" class="adm-btn adm-btn--ghost adm-btn--muted">Delete group</button>
+		</form>
+	</div>
+
+	<div class="adm-stack adm-stack--8">
+		{% for option in options %}
+		<div class="adm-option-row">
+			<i class="ri-draggable adm-drag" aria-hidden="true"></i>
+			<form method="post" action="{% url 'staff.option_update' option.id %}" class="adm-grow" data-ajax data-autosave>
+				{% csrf_token %}
+				<input type="text" name="name" value="{{ option.name }}" maxlength="60" aria-label="Option name" class="adm-option-name" />
+			</form>
+			<form method="post" action="{% url 'staff.option_update' option.id %}" data-ajax data-autosave>
+				{% csrf_token %}
+				<label class="adm-money-shell adm-money-shell--delta"><span class="adm-money-prefix">+R</span><input type="number" name="price_delta" step="0.01" min="0" value="{{ option.price_delta|stringformat:'.2f' }}" aria-label="Price delta for {{ option.name }}" class="adm-money-input adm-money-input--sm" /></label>
+			</form>
+			<form method="post" action="{% url 'staff.option_update' option.id %}" data-ajax>
+				{% csrf_token %}
+				<input type="hidden" name="toggle" value="1" />
+				<button type="submit" role="switch" aria-checked="{{ option.is_available|yesno:'true,false' }}" class="adm-switch{% if option.is_available %} is-on{% endif %}" aria-label="{{ option.name }} available"><span class="adm-switch-knob"></span></button>
+			</form>
+			<form method="post" action="{% url 'staff.option_delete' option.id %}" data-ajax>
+				{% csrf_token %}
+				<button type="submit" class="adm-icon-btn" aria-label="Remove {{ option.name }}"><i class="ri-delete-bin-line" aria-hidden="true"></i></button>
+			</form>
+		</div>
+		{% endfor %}
+	</div>
+
+	<form method="post" action="{% url 'staff.option_add' group.id %}" data-ajax>
+		{% csrf_token %}
+		<button type="submit" class="adm-btn-dashed">+ Add option</button>
+	</form>
+</section>

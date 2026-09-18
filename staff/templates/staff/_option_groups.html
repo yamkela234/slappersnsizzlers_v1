@@ -1,0 +1,11 @@
+<div id="groups-list" class="adm-stack adm-stack--16">
+	{% for group in groups %}
+	{% include "staff/_option_group.html" with options=group.options.all %}
+	{% empty %}
+	<p class="adm-hint" id="groups-empty">{{ food.name }} asks nothing — customers add it straight to the cart.</p>
+	{% endfor %}
+	<form method="post" action="{% url 'staff.group_add' food.id %}" data-ajax>
+		{% csrf_token %}
+		<button type="submit" class="adm-btn adm-btn--lg">+ Add option group</button>
+	</form>
+</div>

@@ -1,0 +1,36 @@
+{% for group in groups %}
+<fieldset class="option-group">
+    <legend class="option-legend">
+        {{ group.name }}
+        {% if group.required %}<span class="option-badge option-badge--required">Required</span>{% else %}<span class="option-optional">Optional</span>{% endif %}
+
+        {% if group.is_free %}<span class="option-badge option-badge--free">Free</span>{% endif %}
+    </legend>
+    <div class="option-list">
+        {% for option in group.options.all %}
+        <label class="option-row">
+            {% if group.is_single %}
+            <input type="radio" name="group-{{ group.id }}" value="{{ option.id }}" data-delta="{{ option.price_delta|stringformat:'.2f' }}"
+                   {% if option.id in selected_ids %}checked{% elif not selected_ids and group.required and forloop.first %}checked{% endif %}
+                   {% if group.required %}required{% endif %}>
+            <span class="option-control" aria-hidden="true"></span>
+            {% else %}
+            <input type="checkbox" name="group-{{ group.id }}" value="{{ option.id }}" data-delta="{{ option.price_delta|stringformat:'.2f' }}"
+                   {% if option.id in selected_ids %}checked{% endif %}>
+            <span class="option-control option-control--box" aria-hidden="true"></span>
+            {% endif %}
+            <span class="option-name">{{ option.name }}</span>
+            {% if option.price_delta %}<span class="option-delta">+R{{ option.price_delta|floatformat:2 }}</span>{% endif %}
+        </label>
+        {% endfor %}
+
+        {% if group.is_single and not group.required %}
+        <label class="option-row">
+            <input type="radio" name="group-{{ group.id }}" value="" data-delta="0" {% if not selected_ids %}checked{% endif %}>
+            <span class="option-control" aria-hidden="true"></span>
+            <span class="option-name">None</span>
+        </label>
+        {% endif %}
+    </div>
+</fieldset>
+{% endfor %}

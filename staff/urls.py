@@ -1,0 +1,35 @@
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("", views.dashboard, name="staff.dashboard"),
+    path("queue/", views.queue, name="staff.queue"),
+    path("queue/partial/", views.queue_partial, name="staff.queue_partial"),
+    path("queue/<int:order_id>/advance/", views.advance, name="staff.advance"),
+    path("orders/", views.orders, name="staff.orders"),
+    path("orders/<int:order_id>/", views.order, name="staff.order"),
+    path("menu/", views.items, name="staff.items"),
+    path("menu/<int:item_id>/price/", views.item_price, name="staff.item_price"),
+    path("menu/<int:item_id>/toggle/", views.item_toggle, name="staff.item_toggle"),
+    path("menu/<int:item_id>/edit/", views.item_edit, name="staff.item_edit"),
+    path("menu/options/", views.options, name="staff.options"),
+    path("menu/<int:item_id>/options/add/", views.group_add, name="staff.group_add"),
+    path("menu/options/group/<int:group_id>/", views.group_update, name="staff.group_update"),
+    path("menu/options/group/<int:group_id>/delete/", views.group_delete, name="staff.group_delete"),
+    path("menu/options/group/<int:group_id>/add/", views.option_add, name="staff.option_add"),
+    path("menu/options/option/<int:option_id>/", views.option_update, name="staff.option_update"),
+    path("menu/options/option/<int:option_id>/delete/", views.option_delete, name="staff.option_delete"),
+    path("reviews/", views.reviews, name="staff.reviews"),
+    path("reviews/<int:review_id>/hide/", views.review_hide, name="staff.review_hide"),
+    path("reviews/<int:review_id>/delete/", views.review_delete, name="staff.review_delete"),
+    path("truck/", views.truck, name="staff.truck"),
+    path("truck/live/", views.truck_live, name="staff.truck_live"),
+    path("slots/", views.slots, name="staff.slots"),
+    path("slots/add/", views.slot_add, name="staff.slot_add"),
+    path("slots/<int:slot_id>/capacity/", views.slot_capacity, name="staff.slot_capacity"),
+    path("slots/<int:slot_id>/close/", views.slot_close, name="staff.slot_close"),
+    path("people/", views.people, name="staff.people"),
+    path("people/<int:user_id>/toggle/", views.person_toggle, name="staff.person_toggle"),
+    path("people/invite/", views.invite, name="staff.invite"),
+]

@@ -1,0 +1,5 @@
+{% if truck.is_trading %}
+<span id="header-trading" class="adm-pill adm-pill--live"><span class="live-dot" aria-hidden="true"></span> Live{% if truck.zone %} · Zone {{ truck.zone }}{% endif %}</span>
+{% else %}
+<span id="header-trading" class="adm-pill adm-pill--closed"><span class="adm-dot" aria-hidden="true"></span> Not trading</span>
+{% endif %}
