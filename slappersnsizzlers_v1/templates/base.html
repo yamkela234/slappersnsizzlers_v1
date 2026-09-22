@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+	{% load static %}
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{% block title %}Slappers n Sizzlers{% endblock %}</title>
+
+		<!-- Google Fonts: Inter for every character of interface; Pacifico is the wordmark only and lives in the logo image -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;500;600;700;800&display=swap"
+			rel="stylesheet"
+		/>
+
+		<!-- Remix Icons 4.3.0 — the only icon set; no emoji anywhere -->
+		<link
+			href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
+			rel="stylesheet"
+		/>
+
+		<!-- Project CSS -->
+		<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+		{% block extra_css %}{% endblock %}
+	</head>
+
+	<body>
+		<header class="main-header">
+			<nav class="navbar" aria-label="Main">
+				<div class="nav-left">
+					<a href="{% url 'home.index' %}">
+						<img src="{% static 'img/logo.png' %}" alt="Slappers n Sizzlers" class="brand-logo" />
+					</a>
+				</div>
+
+				<div class="nav-center">
+					<a href="{% url 'home.index' %}#menu" class="nav-link">Menu</a>
+					<a href="{% url 'orders.index' %}" class="nav-link">My Orders</a>
+					<a href="#about" class="nav-link">About</a>
+				</div>
+
+				<div class="nav-right">
+					{% if user.is_authenticated %}
+					<span class="nav-greeting">Hi, {{ user.first_name|default:user.username }}</span>
+
+					<form method="post" action="{% url 'accounts.logout' %}" class="logout-form">
+						{% csrf_token %}
+						<button type="submit" class="nav-link link-button">Sign Out</button>
+					</form>
+					{% else %}
+					<a href="{% url 'accounts.login' %}" class="nav-link">Sign In</a>
+					{% endif %}
+
+					<a href="{% url 'home.index' %}#menu" class="btn-primary">Order Now</a>
+
+					<a href="{% url 'cart.index' %}" class="icon-btn cart-btn" aria-label="Cart{% if cart_count %}, {{ cart_count }} item{{ cart_count|pluralize }}{% endif %}">
+						<i class="ri-shopping-cart-line" aria-hidden="true"></i>
+						{% if cart_count %}
+						<span class="cart-badge">{{ cart_count }}</span>
+						{% endif %}
+					</a>
+
+					<button class="icon-btn menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-drawer">
+						<i class="ri-menu-line icon-menu" aria-hidden="true"></i>
+						<i class="ri-close-line icon-close" aria-hidden="true" style="display: none"></i>
+					</button>
+				</div>
+			</nav>
+
+			<div class="mobile-drawer" aria-hidden="true" id="mobile-drawer">
+				<div class="mobile-drawer-links">
+					<a href="{% url 'home.index' %}#menu" class="nav-link">Menu</a>
+					<a href="{% url 'orders.index' %}" class="nav-link">My Orders</a>
+					<a href="#about" class="nav-link">About</a>
+				</div>
+				<div class="mobile-drawer-actions">
+					{% if user.is_authenticated %}
+					<form method="post" action="{% url 'accounts.logout' %}" class="logout-form">
+						{% csrf_token %}
+						<button type="submit" class="btn-secondary link-button">Sign Out</button>
+					</form>
+					{% else %}
+					<a href="{% url 'accounts.login' %}" class="btn-secondary">Sign In</a>
+					{% endif %}
+					<a href="{% url 'home.index' %}#menu" class="btn-primary drawer-order-btn">Order Now</a>
+				</div>
+			</div>
+		</header>
+
+		{% if truck.is_trading %}
+		<div class="context-bar" role="status">
+			<div class="context-bar-inner">
+				<span class="context-fact"><span class="live-dot" aria-hidden="true"></span><i class="ri-map-pin-2-fill" aria-hidden="true"></i> {{ truck.name }}{% if truck.zone %} · Zone {{ truck.zone }}{% endif %}</span>
+				<span class="context-fact"><i class="ri-time-line" aria-hidden="true"></i> Open until {{ truck.trading_until|time:"H:i" }}</span>
+				<span class="context-fact"><i class="ri-restaurant-line" aria-hidden="true"></i> Ready in ~{{ truck.ready_minutes }} min</span>
+			</div>
+		</div>
+		{% else %}
+		<div class="context-bar context-bar--closed" role="status">
+			<div class="context-bar-inner">
+				<span class="context-fact"><i class="ri-moon-line" aria-hidden="true"></i> Not trading right now</span>
+				<span class="context-fact"><i class="ri-calendar-schedule-line" aria-hidden="true"></i> Back {{ truck.next_opening|date:"l" }}, {{ truck.next_opening|time:"H:i" }}</span>
+				<span class="context-note">Menu stays browsable — you just can't order yet.</span>
+			</div>
+		</div>
+		{% endif %}
+
+		{% if messages %}
+		<div class="messages-container">
+			{% for message in messages %}
+			<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+			{% endfor %}
+		</div>
+		{% endif %}
+
+		<main>{% block content %}{% endblock content %}</main>
+
+		<footer class="site-footer" id="about">
+			<div class="footer-container">
+				<div class="footer-brand">
+					<a href="{% url 'home.index' %}">
+						<img src="{% static 'img/logo.png' %}" alt="Slappers n Sizzlers" class="brand-logo" />
+					</a>
+					<p>Your favorite food truck, now with online ordering. Skip the queue and enjoy delicious food!</p>
+				</div>
+
+				<div class="footer-links">
+					<h4>Quick Links</h4>
+					<a href="{% url 'home.index' %}#menu">Menu</a>
+					<a href="{% url 'orders.index' %}">My Orders</a>
+					{% if user.is_staff %}<a href="{% url 'staff.dashboard' %}">Back office</a>{% endif %}
+					<a href="#">T&amp;Cs</a>
+				</div>
+
+				<div class="footer-contact">
+					<h4>Contact Us</h4>
+					<p><i class="ri-phone-line" aria-hidden="true"></i> +27 123 456 789</p>
+					<p><i class="ri-mail-line" aria-hidden="true"></i> hello@slappersnsizzlers.co.za</p>
+					<p><i class="ri-map-pin-line" aria-hidden="true"></i> Cape Town, South Africa</p>
+				</div>
+			</div>
+			<div class="footer-bottom">
+				<p>&copy; 2024 Slappers n Sizzlers. All rights reserved.</p>
+
+				<a href="https://www.instagram.com/slappersnsizzlers" class="footer-social" aria-label="Instagram"><i class="ri-instagram-line" aria-hidden="true"></i> @slappersnsizzlers</a>
+			</div>
+		</footer>
+
+		<script src="{% static 'js/menu.js' %}"></script>
+		{% block extra_js %}{% endblock %}
+	</body>
+</html>
