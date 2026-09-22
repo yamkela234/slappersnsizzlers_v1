@@ -1,9 +1,6 @@
-import os
 from datetime import time
 from decimal import Decimal
 
-from django.conf import settings
-from django.core.files import File
 from django.core.management.base import BaseCommand
 
 from home.models import TruckLocation
@@ -32,7 +29,6 @@ class Command(BaseCommand):
     help = "Seed the menu with categories, items, option groups, images and the truck location (idempotent)."
 
     def handle(self, *args, **options):
-        static_img_dir = settings.STATICFILES_DIRS[0] / "img"
         for category_name, category_slug, sort_order, items in MENU:
             category, _ = Category.objects.get_or_create(
                 slug=category_slug,
@@ -55,11 +51,6 @@ class Command(BaseCommand):
                             Option.objects.create(group=group, name=extra, price_delta=Decimal(delta), sort_order=i)
                 if item.static_image != image_name:
                     MenuItem.objects.filter(pk=item.pk).update(static_image=image_name)
-                source = static_img_dir / image_name
-                file_missing = not item.image or not item.image.storage.exists(item.image.name)
-                if file_missing and source.exists() and not os.environ.get("VERCEL"):
-                    with open(source, "rb") as f:
-                        item.image.save(image_name, File(f), save=True)
                 self.stdout.write(f"{'created' if created else 'exists '}: {item.name}")
         truck, truck_created = TruckLocation.objects.get_or_create(
             pk=1,

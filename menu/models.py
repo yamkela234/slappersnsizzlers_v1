@@ -51,8 +51,8 @@ class MenuItem(models.Model):
 
     @property
     def image_url(self):
-        """Uploaded photo if there is one, else the bundled static photo."""
-        if self.image:
+        """Uploaded photo if the file is really there, else the bundled static photo."""
+        if self.image and self.image.storage.exists(self.image.name):
             return self.image.url
         return static("img/" + (self.static_image or "burger.jpg"))
 
